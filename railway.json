@@ -1,1 +1,1 @@
-{ "deploy": { "startCommand": "npx serve -s build -p ${PORT:-3000}" } }
+{"deploy":{"startCommand":"npx serve -s build --listen $PORT"}}
