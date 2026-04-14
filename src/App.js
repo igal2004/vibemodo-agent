@@ -598,21 +598,205 @@ function StrategyTab() {
   );
 }
 
+// ── 10. VIDEO SCRIPT TAB ─────────────────────────────────────
+function VideoTab() {
+  const [platform, setPlatform] = useState("tiktok");
+  const [idea, setIdea] = useState("");
+  const [product, setProduct] = useState("");
+  const [style, setStyle] = useState("trending");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [queue, setQueue] = useState([]);
+  const [flash, setFlash] = useState("");
+
+  const PLATFORMS = [
+    {id:"tiktok",   label:"TikTok",          icon:"🎵", color:"#69C9D0", dur:"15-60 שניות"},
+    {id:"reel",     label:"Instagram Reel",  icon:"📸", color:"#E1306C", dur:"15-90 שניות"},
+    {id:"youtube",  label:"YouTube Short",   icon:"▶",  color:"#FF4444", dur:"עד 60 שניות"},
+    {id:"facebook", label:"Facebook Video",  icon:"👤", color:"#4A90D9", dur:"1-3 דקות"},
+  ];
+
+  const STYLES = [
+    {id:"trending",  label:"טרנד וויראלי",  emoji:"🔥"},
+    {id:"showcase",  label:"הצגת מוצר",     emoji:"🏷️"},
+    {id:"story",     label:"סיפור מותג",     emoji:"🐺"},
+    {id:"ugc",       label:"UGC אותנטי",    emoji:"🎤"},
+    {id:"before",    label:"לפני/אחרי",      emoji:"✨"},
+    {id:"tutorial",  label:"איך להתלבש",     emoji:"👗"},
+  ];
+
+  const generate = async () => {
+    if (!idea.trim()) return;
+    setLoading(true); setResult("");
+    const p = PLATFORMS.find(x=>x.id===platform);
+    const s = STYLES.find(x=>x.id===style);
+    const prompt = `צור סקריפט וידאו מלא ל-${p.label} עבור VIBEMODO.
+רעיון: "${idea}"
+${product ? `מוצר/קטגוריה: "${product}"` : ""}
+סגנון: ${s.label}
+משך: ${p.dur}
+
+פרמט חובה:
+🎬 **כותרת הסרטון**
+⏱️ **משך מומלץ**
+
+🪝 **HOOK (3 שניות ראשונות)**
+[טקסט מדויק שנאמר / כתוב על המסך]
+
+🎬 **סצנה 1** (0-10 שניות)
+ויזואל: [מה רואים]
+דיבור: [מה נאמר]
+טקסט על מסך: [כתוביות]
+
+🎬 **סצנה 2** (10-30 שניות)
+ויזואל: [מה רואים]
+דיבור: [מה נאמר]
+טקסט על מסך: [כתוביות]
+
+🎬 **סצנה 3** (30-50 שניות)
+ויזואל: [מה רואים]
+דיבור: [מה נאמר]
+טקסט על מסך: [כתוביות]
+
+🎯 **CTA** (5 שניות אחרונות)
+[קריאה לפעולה ברורה – vibemodostyle.com]
+
+🎵 **מוזיקה מוצעת**
+[סגנון / שם טרק / מצב רוח]
+
+📝 **קפשן לפוסט**
+[תיאור מלא עם האשטאגים]
+
+#️⃣ **האשטאגים**
+[30 האשטאגים הכי רלוונטיים]
+
+תכנן שהסרטון ימקד ב-VIBEMODO כאאוטלט מותגים איכותיים וישלב את vibemodostyle.com.`;
+
+    try { setResult(await callClaude(prompt)); }
+    catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  const approve = () => {
+    const p = PLATFORMS.find(x=>x.id===platform);
+    const s = STYLES.find(x=>x.id===style);
+    setQueue(q=>[{id:Date.now(), platform:p, style:s, idea, content:result, time:new Date().toLocaleTimeString("he-IL")}, ...q]);
+    setResult(""); setIdea(""); setProduct(""); setFlash("✅ נשמר בתור!");
+    setTimeout(()=>setFlash(""), 2500);
+  };
+
+  const activePlatform = PLATFORMS.find(x=>x.id===platform);
+
+  return (
+    <div>
+      <div style={S.card}>
+        <span style={S.label}>פלטפורמה</span>
+        <div style={S.wrap}>
+          {PLATFORMS.map(p=>(
+            <button key={p.id} style={S.chip(platform===p.id, p.color)} onClick={()=>setPlatform(p.id)}>
+              {p.icon} {p.label} <span style={{fontSize:10,opacity:.7}}>({p.dur})</span>
+            </button>
+          ))}
+        </div>
+
+        <span style={S.label}>סגנון הסרטון</span>
+        <div style={S.wrap}>
+          {STYLES.map(s=>(
+            <button key={s.id} style={S.chip(style===s.id, activePlatform.color)} onClick={()=>setStyle(s.id)}>
+              {s.emoji} {s.label}
+            </button>
+          ))}
+        </div>
+
+        <span style={S.label}>מוצר / קטגוריה (אופציונלי)</span>
+        <input
+          value={product}
+          onChange={e=>setProduct(e.target.value)}
+          placeholder="לדוגמה: ג'ינס ליוויס 501, נעלי ספורט נייקי..."
+          style={{...S.input, width:"100%", marginBottom:12}}
+        />
+
+        <span style={S.label}>רעיון הסרטון</span>
+        <div style={S.row}>
+          <button
+            style={{...S.btn(activePlatform.color), ...(loading||!idea.trim()?{opacity:.5}:{})}}
+            onClick={generate}
+            disabled={loading||!idea.trim()}
+          >
+            {loading?<Spin/>:"🎬"} {loading?"מייצר סקריפט...":"צור סקריפט"}
+          </button>
+          <input
+            value={idea}
+            onChange={e=>setIdea(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&generate()}
+            placeholder="מה הרעיון? לדוגמה: להראות 5 לוקים שונים עם ג'ינס..."
+            style={{...S.input, flex:1}}
+          />
+        </div>
+        {flash && <div style={{marginTop:8, color:"#22c55e", fontSize:14, textAlign:"right"}}>{flash}</div>}
+      </div>
+
+      {loading && (
+        <div style={{textAlign:"center", padding:28, color:activePlatform.color, fontFamily:"monospace", fontSize:15}}>
+          <Spin/> כותב סקריפט מלא...
+        </div>
+      )}
+
+      {result && !loading && (
+        <div style={S.card}>
+          <span style={{...S.label, color:activePlatform.color, fontSize:14}}>
+            {activePlatform.icon} סקריפט מוכן ל-{activePlatform.label}
+          </span>
+          <div style={S.output}>{result}</div>
+          <div style={{display:"flex", gap:8, marginTop:14, flexWrap:"wrap"}}>
+            <button style={S.btn("#166534")} onClick={approve}>✅ אשר ושמור</button>
+            <button style={S.btnSm()} onClick={()=>{navigator.clipboard.writeText(result); setFlash("📋 הועתק!");}}>📋 העתק</button>
+            <button style={S.btnSm()} onClick={generate}>🔄 ייצר מחדש</button>
+            <button style={S.btnSm("#991b1b")} onClick={()=>setResult("")}>✗ דחה</button>
+          </div>
+        </div>
+      )}
+
+      {queue.length > 0 && (
+        <div style={S.card}>
+          <span style={S.label}>✅ סקריפטים מאושרים ({queue.length})</span>
+          {queue.map(item=>(
+            <div key={item.id} style={{background:"#111827", border:"1px solid #2d3f5e", borderRight:`3px solid ${item.platform.color}`, borderRadius:10, padding:14, marginBottom:10}}>
+              <div style={{display:"flex", gap:8, justifyContent:"flex-end", marginBottom:6, flexWrap:"wrap"}}>
+                <span style={{color:"#64748b", fontSize:12}}>{item.time}</span>
+                <span style={{color:"#8fa3c0", fontSize:12}}>{item.style.emoji} {item.style.label}</span>
+                <span style={{color:item.platform.color, fontWeight:700, fontSize:13}}>{item.platform.icon} {item.platform.label}</span>
+              </div>
+              <p style={{color:"#94a3b8", fontSize:13, lineHeight:1.6, margin:0, textAlign:"right"}}>
+                💡 {item.idea}
+              </p>
+              <div style={{marginTop:8}}>
+                <button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(item.content)}>📋 העתק סקריפט</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── MAIN ─────────────────────────────────────────────────────
 const TABS = [
-  {id:"content",    label:"✍️ תוכן",       C:ContentTab},
-  {id:"seo",        label:"🔍 SEO",         C:SeoTab},
-  {id:"email",      label:"📧 מיילים",      C:EmailTab},
-  {id:"products",   label:"🛒 מוצרים",      C:ProductsTab},
-  {id:"chatbot",    label:"💬 צ'אטבוט",     C:ChatbotTab},
-  {id:"competitors",label:"🏆 מתחרים",      C:CompetitorsTab},
-  {id:"planner",    label:"📅 מתכנן",        C:PlannerTab},
-  {id:"monitor",    label:"🛡️ ניטור",       C:MonitorTab},
-  {id:"strategy",   label:"🧠 אסטרטגיה",   C:StrategyTab},
+  {id:"video",       label:"🎬 וידאו",        C:VideoTab},
+  {id:"content",     label:"✍️ תוכן",         C:ContentTab},
+  {id:"seo",         label:"🔍 SEO",           C:SeoTab},
+  {id:"email",       label:"📧 מיילים",        C:EmailTab},
+  {id:"products",    label:"🛒 מוצרים",        C:ProductsTab},
+  {id:"chatbot",     label:"💬 צ'אטבוט",       C:ChatbotTab},
+  {id:"competitors", label:"🏆 מתחרים",        C:CompetitorsTab},
+  {id:"planner",     label:"📅 מתכנן",          C:PlannerTab},
+  {id:"monitor",     label:"🛡️ ניטור",         C:MonitorTab},
+  {id:"strategy",    label:"🧠 אסטרטגיה",     C:StrategyTab},
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("content");
+  const [tab, setTab] = useState("video");
   const [time, setTime] = useState(new Date());
   useEffect(()=>{ const t=setInterval(()=>setTime(new Date()),1000); return()=>clearInterval(t); },[]);
   const Active = TABS.find(t=>t.id===tab)?.C;
