@@ -28,18 +28,18 @@ VIBEMODO הוא אאוטלט מותגים אמיתיים ואיכותיים – 
 תן תשובות מעשיות עם צעדים ממוספרים ברורים.`;
 
 const S = {
-  app: { minHeight:"100vh", background:"#060810", fontFamily:"'Segoe UI',sans-serif", color:"#e2e8f0", direction:"rtl" },
-  header: { display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 20px", borderBottom:"1px solid #1e293b", background:"#080d1a" },
-  card: { background:"linear-gradient(135deg,#0a0f1e,#0d1527)", border:"1px solid #1e293b", borderRadius:14, padding:20, marginBottom:16 },
-  tabBtn: (a) => ({ background:a?"#1e3a6e33":"none", border:a?"1px solid #1e3a6e":"1px solid transparent", borderRadius:8, padding:"8px 12px", cursor:"pointer", fontWeight:700, fontSize:12, color:a?"#93c5fd":"#475569", whiteSpace:"nowrap", fontFamily:"inherit" }),
-  chip: (a,c) => ({ display:"flex", alignItems:"center", gap:6, padding:"6px 12px", borderRadius:20, fontSize:12, fontWeight:700, cursor:"pointer", border:`1px solid ${a?c:"#1e293b"}`, background:a?c+"22":"#0a0f1e", color:a?c:"#64748b", fontFamily:"inherit" }),
-  input: { background:"#0a0f1e", border:"1px solid #1e293b", borderRadius:8, color:"#e2e8f0", fontSize:13, padding:"9px 13px", outline:"none", fontFamily:"inherit", direction:"rtl" },
-  btn: (c="#1e40af") => ({ background:`linear-gradient(135deg,${c}aa,${c})`, border:`1px solid ${c}88`, borderRadius:10, color:"#fff", padding:"9px 18px", cursor:"pointer", fontWeight:700, fontSize:13, display:"flex", alignItems:"center", gap:8, fontFamily:"inherit" }),
-  btnSm: (c="#1e40af") => ({ background:`linear-gradient(135deg,${c}aa,${c})`, border:`1px solid ${c}88`, borderRadius:8, color:"#fff", padding:"7px 14px", cursor:"pointer", fontWeight:700, fontSize:12, display:"flex", alignItems:"center", gap:6, fontFamily:"inherit" }),
-  output: { background:"#070c18", border:"1px solid #1e293b", borderRadius:10, padding:16, fontSize:13, lineHeight:1.8, color:"#cbd5e1", whiteSpace:"pre-wrap", minHeight:80, textAlign:"right" },
+  app: { minHeight:"100vh", background:"#0f1623", fontFamily:"'Segoe UI',sans-serif", color:"#f1f5f9", direction:"rtl" },
+  header: { display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 20px", borderBottom:"1px solid #2d3f5e", background:"#141e30" },
+  card: { background:"linear-gradient(135deg,#1a2540,#1e2d4a)", border:"1px solid #2d3f5e", borderRadius:14, padding:20, marginBottom:16 },
+  tabBtn: (a) => ({ background:a?"#1e3a6e55":"none", border:a?"1px solid #3b6fd4":"1px solid transparent", borderRadius:8, padding:"8px 14px", cursor:"pointer", fontWeight:700, fontSize:14, color:a?"#93c5fd":"#8fa3c0", whiteSpace:"nowrap", fontFamily:"inherit" }),
+  chip: (a,c) => ({ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", borderRadius:20, fontSize:13, fontWeight:700, cursor:"pointer", border:`1px solid ${a?c:"#2d3f5e"}`, background:a?c+"33":"#1a2540", color:a?c:"#8fa3c0", fontFamily:"inherit" }),
+  input: { background:"#1a2540", border:"1px solid #2d3f5e", borderRadius:8, color:"#f1f5f9", fontSize:15, padding:"10px 14px", outline:"none", fontFamily:"inherit", direction:"rtl" },
+  btn: (c="#1e40af") => ({ background:`linear-gradient(135deg,${c}cc,${c})`, border:`1px solid ${c}99`, borderRadius:10, color:"#fff", padding:"10px 20px", cursor:"pointer", fontWeight:700, fontSize:15, display:"flex", alignItems:"center", gap:8, fontFamily:"inherit" }),
+  btnSm: (c="#1e40af") => ({ background:`linear-gradient(135deg,${c}cc,${c})`, border:`1px solid ${c}99`, borderRadius:8, color:"#fff", padding:"8px 16px", cursor:"pointer", fontWeight:700, fontSize:13, display:"flex", alignItems:"center", gap:6, fontFamily:"inherit" }),
+  output: { background:"#111827", border:"1px solid #2d3f5e", borderRadius:10, padding:18, fontSize:15, lineHeight:1.9, color:"#e2e8f0", whiteSpace:"pre-wrap", minHeight:80, textAlign:"right" },
   row: { display:"flex", gap:10, alignItems:"center" },
   wrap: { display:"flex", gap:8, flexWrap:"wrap", marginBottom:12 },
-  label: { fontSize:12, fontWeight:700, color:"#475569", marginBottom:8, textAlign:"right", display:"block" },
+  label: { fontSize:13, fontWeight:700, color:"#8fa3c0", marginBottom:8, textAlign:"right", display:"block" },
 };
 
 function Spin() { return <span style={{display:"inline-block",animation:"spin .8s linear infinite"}}>⟳</span>; }
