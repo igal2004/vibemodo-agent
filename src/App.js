@@ -45,7 +45,7 @@ const S = {
 function Spin() { return <span style={{display:"inline-block",animation:"spin .8s linear infinite"}}>⟳</span>; }
 
 async function callClaude(userMsg, system=SYSTEM_PROMPT) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/.netlify/functions/claude", {
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system, messages:[{role:"user",content:userMsg}] }),
   });
@@ -315,7 +315,7 @@ function ChatbotTab() {
     setLoading(true);
     try {
       const history = messages.map(m=>({role:m.role==="assistant"?"assistant":"user",content:m.text}));
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/.netlify/functions/claude", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:500, system:CHATBOT_SYSTEM,
           messages:[...history,{role:"user",content:userMsg}] }),
