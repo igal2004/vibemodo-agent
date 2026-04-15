@@ -823,6 +823,206 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
   );
 }
 
+// ── LIVE PRODUCTS TAB ────────────────────────────────────────
+function LiveProductsTab() {
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [genType, setGenType] = useState("grok");
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState("");
+  const [flash, setFlash] = useState("");
+  const [search, setSearch] = useState("");
+
+  const GEN_TYPES = [
+    {id:"grok",    label:"פרומפט Grok Imagine", emoji:"🤖", color:"#69C9D0"},
+    {id:"post",    label:"פוסט Instagram",       emoji:"📸", color:"#E1306C"},
+    {id:"tiktok",  label:"סקריפט TikTok",        emoji:"🎵", color:"#69C9D0"},
+    {id:"meta",    label:"Meta Ad",              emoji:"🎯", color:"#4A90D9"},
+    {id:"seo",     label:"תיאור SEO",            emoji:"🔍", color:"#22c55e"},
+    {id:"email",   label:"מייל מוצר",            emoji:"📧", color:"#3B9EFF"},
+    {id:"pack",    label:"פאקג' מלא",            emoji:"📦", color:"#f59e0b"},
+  ];
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch("https://vibemodostyle.com/products.json?limit=50");
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch(e) {
+      setProducts([]);
+    }
+    setLoadingProducts(false);
+  };
+
+  useEffect(() => { fetchProducts(); }, []);
+
+  const filtered = products.filter(p =>
+    p.title.toLowerCase().includes(search.toLowerCase()) ||
+    (p.vendor||"").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const buildPrompt = (p) => {
+    const price = p.variants?.[0]?.price;
+    const comparePrice = p.variants?.[0]?.compare_at_price;
+    const discount = comparePrice && price ? Math.round((1 - price/comparePrice)*100) : null;
+    const img = p.images?.[0]?.src || "";
+    const info = `מוצר: ${p.title}
+מותג: ${p.vendor}
+מחיר: ₪${price}${discount ? ` (במקום ₪${comparePrice} – ${discount}% הנחה!)` : ""}
+תמונה: ${img}`;
+
+    const prompts = {
+      grok: `You are an expert AI video prompt engineer for Grok Imagine (Aurora model).
+Create 3 cinematic 10-second video prompts (720p, 16:9) for VIBEMODO brand outlet.
+Product: ${p.title} by ${p.vendor}
+Price: $${price}${discount ? ` (${discount}% off)` : ""}
+Image reference: ${img}
+
+Style: urban premium streetwear, confident, authentic. Dynamic camera movement, cinematic lighting.
+Each prompt must be in English, 2-3 sentences, ready to paste directly into Grok Imagine.
+
+FORMAT:
+🎬 PROMPT 1 – Lifestyle shot
+[English prompt]
+
+🎬 PROMPT 2 – Product focus
+[English prompt]
+
+🎬 PROMPT 3 – Street/urban
+[English prompt]
+
+💡 הגדרות מומלצות: Video • 720p • 10s • 16:9`,
+
+      post: `כתוב פוסט Instagram מנצח ל-VIBEMODO.
+${info}
+טון: מגניב, ביטחוני, לא מכירתי מדי. כלול 20 האשטאגים הכי רלוונטיים.`,
+
+      tiktok: `כתוב סקריפט TikTok מלא (30 שניות) ל-VIBEMODO.
+${info}
+Hook 3 שניות → Body → CTA לvibemodostyle.com. כלול ויזואל, דיבור, כתוביות.`,
+
+      meta: `כתוב 3 גרסאות מודעת Meta/Instagram ל-VIBEMODO.
+${info}
+לכל גרסה: Primary Text (125 תווים) + Headline (40 תווים) + CTA.`,
+
+      seo: `כתוב תיאור מוצר SEO מלא ל-VIBEMODO.
+${info}
+150-300 מילים, מילות מפתח, יתרונות, CTA לvibemodostyle.com.`,
+
+      email: `כתוב מייל שיווקי מלא ל-VIBEMODO על המוצר הזה.
+${info}
+Subject Line מושך + גוף מייל + CTA לvibemodostyle.com.`,
+
+      pack: `צור פאקג' תוכן שיווקי מלא ל-VIBEMODO עבור המוצר:
+${info}
+
+1. 📸 פוסט Instagram (עם האשטאגים)
+2. 🎵 Hook TikTok (15 שניות)
+3. 🎯 Meta Ad (Primary Text + Headline)
+4. 📧 Subject Line למייל
+5. 🤖 פרומפט Grok Imagine (באנגלית, לסרטון 10 שניות)
+6. 💬 הודעת WhatsApp קצרה`,
+    };
+    return prompts[genType];
+  };
+
+  const generate = async () => {
+    if (!selected) return;
+    setGenerating(true); setResult("");
+    try { setResult(await callClaude(buildPrompt(selected))); }
+    catch(e) { setResult("❌ " + e.message); }
+    setGenerating(false);
+  };
+
+  const activeType = GEN_TYPES.find(t=>t.id===genType);
+
+  return (
+    <div>
+      <div style={S.card}>
+        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14}}>
+          <button style={S.btnSm()} onClick={fetchProducts} disabled={loadingProducts}>
+            {loadingProducts?<><Spin/> טוען...</>:"🔄 רענן"}
+          </button>
+          <span style={{...S.label, margin:0, fontSize:15}}>🛍️ מוצרים מ-vibemodostyle.com</span>
+        </div>
+
+        <input
+          value={search}
+          onChange={e=>setSearch(e.target.value)}
+          placeholder="חפש מוצר או מותג..."
+          style={{...S.input, width:"100%", marginBottom:12}}
+        />
+
+        {loadingProducts && <div style={{textAlign:"center",padding:20,color:"#3B9EFF"}}><Spin/> טוען מוצרים מהחנות...</div>}
+
+        <div style={{maxHeight:320, overflowY:"auto", display:"flex", flexDirection:"column", gap:8, marginBottom:14}}>
+          {filtered.map(p => {
+            const price = p.variants?.[0]?.price;
+            const comparePrice = p.variants?.[0]?.compare_at_price;
+            const discount = comparePrice && price ? Math.round((1 - price/comparePrice)*100) : null;
+            const img = p.images?.[0]?.src;
+            const isSelected = selected?.id === p.id;
+            return (
+              <div
+                key={p.id}
+                onClick={()=>{setSelected(p); setResult("");}}
+                style={{display:"flex", alignItems:"center", gap:12, padding:"10px 12px", borderRadius:10, cursor:"pointer", border:`1px solid ${isSelected?"#3B9EFF":"#2d3f5e"}`, background:isSelected?"#1a2d4a":"#111827", transition:"all .15s"}}
+              >
+                {img && <img src={img} alt="" style={{width:52, height:52, borderRadius:8, objectFit:"cover", flexShrink:0}} />}
+                <div style={{flex:1, textAlign:"right"}}>
+                  <div style={{color:"#f1f5f9", fontSize:13, fontWeight:700, lineHeight:1.3}}>{p.title}</div>
+                  <div style={{color:"#8fa3c0", fontSize:11, marginTop:2}}>{p.vendor}</div>
+                </div>
+                <div style={{textAlign:"left", flexShrink:0}}>
+                  <div style={{color:"#22c55e", fontWeight:700, fontSize:13}}>₪{price}</div>
+                  {discount && <div style={{color:"#f59e0b", fontSize:11}}>-{discount}%</div>}
+                </div>
+              </div>
+            );
+          })}
+          {!loadingProducts && filtered.length===0 && <div style={{textAlign:"center",color:"#475569",padding:16}}>לא נמצאו מוצרים</div>}
+        </div>
+
+        {selected && (
+          <>
+            <div style={{background:"#0d1f35", border:"1px solid #3B9EFF33", borderRadius:10, padding:"10px 14px", marginBottom:12, textAlign:"right"}}>
+              <span style={{color:"#3B9EFF", fontWeight:700}}>✅ נבחר: </span>
+              <span style={{color:"#f1f5f9", fontSize:13}}>{selected.title}</span>
+            </div>
+            <span style={S.label}>מה לייצר?</span>
+            <div style={S.wrap}>
+              {GEN_TYPES.map(t=><button key={t.id} style={S.chip(genType===t.id, t.color)} onClick={()=>{setGenType(t.id);setResult("");}}>
+                {t.emoji} {t.label}
+              </button>)}
+            </div>
+            <button style={{...S.btn(activeType.color), ...(generating?{opacity:.5}:{})}} onClick={generate} disabled={generating}>
+              {generating?<><Spin/> מייצר...</>:<>{activeType.emoji} צור {activeType.label}</>}
+            </button>
+          </>
+        )}
+      </div>
+
+      {generating && <div style={{textAlign:"center",padding:24,color:activeType?.color,fontFamily:"monospace"}}><Spin/> מייצר תוכן עבור {selected?.title}...</div>}
+
+      {result && !loading && (
+        <div style={{...S.card, borderTop:`3px solid ${activeType?.color}`}}>
+          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10}}>
+            <div style={{display:"flex",gap:8}}>
+              <button style={S.btnSm()} onClick={()=>{navigator.clipboard.writeText(result);setFlash("📋 הועתק!");}}>📋 העתק</button>
+              <button style={S.btnSm(activeType?.color)} onClick={generate}>🔄 מחדש</button>
+            </div>
+            <span style={{color:activeType?.color, fontWeight:700, fontSize:14}}>{activeType?.emoji} {activeType?.label}</span>
+          </div>
+          {flash && <div style={{color:"#22c55e",fontSize:13,marginBottom:8,textAlign:"right"}}>{flash}</div>}
+          <div style={S.output}>{result}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── MAIN ─────────────────────────────────────────────────────
 // ── 11. ADS TAB ──────────────────────────────────────────────
 function AdsTab() {
@@ -1171,9 +1371,10 @@ function AmbassadorsTab() {
 
 // ── MAIN ─────────────────────────────────────────────────────
 const TABS = [
-  {id:"pack",        label:"📦 פאקג' מוצר",   C:ProductPackTab},
-  {id:"video",       label:"🎬 וידאו",         C:VideoTab},
-  {id:"ads",         label:"🎯 מודעות",         C:AdsTab},
+  {id:"live",        label:"🛍️ חנות Live",      C:LiveProductsTab},
+  {id:"pack",        label:"📦 פאקג' מוצר",     C:ProductPackTab},
+  {id:"video",       label:"🎬 וידאו",           C:VideoTab},
+  {id:"ads",         label:"🎯 מודעות",           C:AdsTab},
   {id:"content",     label:"✍️ תוכן",          C:ContentTab},
   {id:"repurpose",   label:"🔄 ריפרפוז",        C:RepurposeTab},
   {id:"seo",         label:"🔍 SEO",            C:SeoTab},
@@ -1188,7 +1389,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("pack");
+  const [tab, setTab] = useState("live");
   const [time, setTime] = useState(new Date());
   useEffect(()=>{ const t=setInterval(()=>setTime(new Date()),1000); return()=>clearInterval(t); },[]);
   const Active = TABS.find(t=>t.id===tab)?.C;
