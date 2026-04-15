@@ -600,6 +600,7 @@ function StrategyTab() {
 
 // ── 10. VIDEO SCRIPT TAB ─────────────────────────────────────
 function VideoTab() {
+  const [mode, setMode] = useState("prompt"); // "prompt" = Grok prompt, "script" = full script
   const [platform, setPlatform] = useState("tiktok");
   const [idea, setIdea] = useState("");
   const [product, setProduct] = useState("");
@@ -630,7 +631,36 @@ function VideoTab() {
     setLoading(true); setResult("");
     const p = PLATFORMS.find(x=>x.id===platform);
     const s = STYLES.find(x=>x.id===style);
-    const prompt = `צור סקריפט וידאו מלא ל-${p.label} עבור VIBEMODO.
+
+    const grokPrompt = `You are an expert AI video prompt engineer for Grok Imagine (Aurora model).
+Create 3 optimized video prompts for a 10-second, 720p, 16:9 video for VIBEMODO — a premium brand outlet store (vibemodostyle.com).
+
+Product/Idea: "${idea}"
+${product ? `Specific product: "${product}"` : ""}
+Style: ${s.label}
+Platform target: ${p.label}
+
+For each prompt, write ONLY the English video generation prompt (no explanations).
+Make them cinematic, dynamic, with movement. Include: lighting style, camera movement, mood, setting.
+VIBEMODO aesthetic: urban, cool, confident, premium streetwear vibes. Black German Shepherd logo.
+
+FORMAT:
+🎬 PROMPT 1 – [סגנון]
+[English prompt, 2-3 sentences max]
+📋 העתק
+
+🎬 PROMPT 2 – [סגנון]
+[English prompt, 2-3 sentences max]
+📋 העתק
+
+🎬 PROMPT 3 – [סגנון]
+[English prompt, 2-3 sentences max]
+📋 העתק
+
+💡 טיפ לGrok Imagine:
+[הנחיות קצרות בעברית: איזה prompt הכי מומלץ ולמה, הגדרות מומלצות: 720p, 10s, 16:9]`;
+
+    const scriptPrompt = `צור סקריפט וידאו מלא ל-${p.label} עבור VIBEMODO.
 רעיון: "${idea}"
 ${product ? `מוצר/קטגוריה: "${product}"` : ""}
 סגנון: ${s.label}
@@ -640,7 +670,7 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
 🎬 **כותרת הסרטון**
 ⏱️ **משך מומלץ**
 
-🪝 **HOOK (3 שניות ראשונות)**
+🪝 **HOOK (3 שניות ראשונות — עוצר גלילה)**
 [טקסט מדויק שנאמר / כתוב על המסך]
 
 🎬 **סצנה 1** (0-10 שניות)
@@ -659,20 +689,14 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
 טקסט על מסך: [כתוביות]
 
 🎯 **CTA** (5 שניות אחרונות)
-[קריאה לפעולה ברורה – vibemodostyle.com]
+[קריאה לפעולה – vibemodostyle.com]
 
 🎵 **מוזיקה מוצעת**
 [סגנון / שם טרק / מצב רוח]
 
-📝 **קפשן לפוסט**
-[תיאור מלא עם האשטאגים]
+📝 **קפשן לפוסט + 30 האשטאגים**`;
 
-#️⃣ **האשטאגים**
-[30 האשטאגים הכי רלוונטיים]
-
-תכנן שהסרטון ימקד ב-VIBEMODO כאאוטלט מותגים איכותיים וישלב את vibemodostyle.com.`;
-
-    try { setResult(await callClaude(prompt)); }
+    try { setResult(await callClaude(mode === "prompt" ? grokPrompt : scriptPrompt)); }
     catch(e) { setResult("❌ " + e.message); }
     setLoading(false);
   };
@@ -690,6 +714,24 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
   return (
     <div>
       <div style={S.card}>
+
+        {/* Mode switcher */}
+        <div style={{display:"flex", gap:6, marginBottom:16, background:"#111827", borderRadius:10, padding:4}}>
+          <button onClick={()=>{setMode("prompt");setResult("");}} style={{flex:1, padding:"8px", borderRadius:8, border:"none", cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"inherit", background:mode==="prompt"?"#69C9D0":"transparent", color:mode==="prompt"?"#000":"#8fa3c0"}}>
+            🤖 פרומפטים לGrok Imagine
+          </button>
+          <button onClick={()=>{setMode("script");setResult("");}} style={{flex:1, padding:"8px", borderRadius:8, border:"none", cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"inherit", background:mode==="script"?"#E1306C":"transparent", color:mode==="script"?"#fff":"#8fa3c0"}}>
+            🎬 סקריפט מלא לצילום
+          </button>
+        </div>
+
+        {mode==="prompt" && (
+          <div style={{background:"#0d1f35", border:"1px solid #69C9D055", borderRadius:10, padding:"10px 14px", marginBottom:14, textAlign:"right"}}>
+            <span style={{color:"#69C9D0", fontWeight:700, fontSize:13}}>🤖 מצב Grok Imagine</span>
+            <p style={{color:"#8fa3c0", fontSize:12, marginTop:4}}>הרובוט ייצר 3 פרומפטים באנגלית מותאמים ל-10 שניות, 720p — תעתיק ישירות לGrok Imagine ותקבל סרטון.</p>
+          </div>
+        )}
+
         <span style={S.label}>פלטפורמה</span>
         <div style={S.wrap}>
           {PLATFORMS.map(p=>(
@@ -716,20 +758,20 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
           style={{...S.input, width:"100%", marginBottom:12}}
         />
 
-        <span style={S.label}>רעיון הסרטון</span>
+        <span style={S.label}>{mode==="prompt" ? "רעיון הסרטון — הרובוט ייצר פרומפטים לGrok" : "רעיון הסרטון — הרובוט ייצר סקריפט מלא"}</span>
         <div style={S.row}>
           <button
-            style={{...S.btn(activePlatform.color), ...(loading||!idea.trim()?{opacity:.5}:{})}}
+            style={{...S.btn(mode==="prompt"?"#69C9D0":activePlatform.color), ...(loading||!idea.trim()?{opacity:.5}:{})}}
             onClick={generate}
             disabled={loading||!idea.trim()}
           >
-            {loading?<Spin/>:"🎬"} {loading?"מייצר סקריפט...":"צור סקריפט"}
+            {loading?<Spin/>:(mode==="prompt"?"🤖":"🎬")} {loading?(mode==="prompt"?"מייצר פרומפטים...":"מייצר סקריפט..."):(mode==="prompt"?"צור פרומפטים לGrok":"צור סקריפט")}
           </button>
           <input
             value={idea}
             onChange={e=>setIdea(e.target.value)}
             onKeyDown={e=>e.key==="Enter"&&generate()}
-            placeholder="מה הרעיון? לדוגמה: להראות 5 לוקים שונים עם ג'ינס..."
+            placeholder="מה הרעיון? לדוגמה: ג'ינס ליוויס 501 על מודל ברחוב תל אביב..."
             style={{...S.input, flex:1}}
           />
         </div>
@@ -737,20 +779,20 @@ ${product ? `מוצר/קטגוריה: "${product}"` : ""}
       </div>
 
       {loading && (
-        <div style={{textAlign:"center", padding:28, color:activePlatform.color, fontFamily:"monospace", fontSize:15}}>
-          <Spin/> כותב סקריפט מלא...
+        <div style={{textAlign:"center", padding:28, color:mode==="prompt"?"#69C9D0":activePlatform.color, fontFamily:"monospace", fontSize:15}}>
+          <Spin/> {mode==="prompt"?"בונה פרומפטים לGrok Imagine...":"כותב סקריפט מלא..."}
         </div>
       )}
 
       {result && !loading && (
         <div style={S.card}>
-          <span style={{...S.label, color:activePlatform.color, fontSize:14}}>
-            {activePlatform.icon} סקריפט מוכן ל-{activePlatform.label}
+          <span style={{...S.label, color:mode==="prompt"?"#69C9D0":activePlatform.color, fontSize:14}}>
+            {mode==="prompt"?"🤖 פרומפטים מוכנים — העתק לGrok Imagine":"🎬 סקריפט מוכן ל-"+activePlatform.label}
           </span>
           <div style={S.output}>{result}</div>
           <div style={{display:"flex", gap:8, marginTop:14, flexWrap:"wrap"}}>
             <button style={S.btn("#166534")} onClick={approve}>✅ אשר ושמור</button>
-            <button style={S.btnSm()} onClick={()=>{navigator.clipboard.writeText(result); setFlash("📋 הועתק!");}}>📋 העתק</button>
+            <button style={S.btnSm()} onClick={()=>{navigator.clipboard.writeText(result); setFlash("📋 הועתק!");}}>📋 העתק הכל</button>
             <button style={S.btnSm()} onClick={generate}>🔄 ייצר מחדש</button>
             <button style={S.btnSm("#991b1b")} onClick={()=>setResult("")}>✗ דחה</button>
           </div>
