@@ -1370,22 +1370,498 @@ function AmbassadorsTab() {
 }
 
 // ── MAIN ─────────────────────────────────────────────────────
+// ── ABANDONED CART TAB ───────────────────────────────────────
+function AbandonedCartTab() {
+  const [product, setProduct] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const run = async () => {
+    if (!product.trim()) return;
+    setLoading(true); setResult("");
+    try {
+      setResult(await callClaude(`כתוב סדרת 3 מיילים לעגלה נטושה עבור VIBEMODO עבור המוצר: "${product}".
+כל מייל – Subject Line + גוף מלא + CTA לvibemodostyle.com.
+
+📧 מייל 1 – שעה אחרי עזיבה (עדין, תזכורת):
+Subject:
+גוף:
+CTA:
+━━━━━━━━━━━━━━━━━━
+
+📧 מייל 2 – 24 שעות אחרי (FOMO + יתרונות):
+Subject:
+גוף:
+CTA:
+━━━━━━━━━━━━━━━━━━
+
+📧 מייל 3 – 72 שעות אחרי (הנחה אחרונה 10% + דחיפות):
+Subject:
+גוף (כולל קוד קופון VIBEMODO10):
+CTA:
+
+טון: חברותי, לא לחצני, מדגיש ערך ואיכות VIBEMODO.`));
+    } catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>🛒 סדרת מיילים – עגלה נטושה</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>70% מהעגלות ננטשות — 3 מיילים אוטומטיים מחזירים עד 15% מהלקוחות</p>
+      <div style={S.row}>
+        <button style={{...S.btn("#dc2626"), ...(loading||!product.trim()?{opacity:.5}:{})}} onClick={run} disabled={loading||!product.trim()}>
+          {loading?<><Spin/> כותב...</>:<>🛒 צור סדרה</>}
+        </button>
+        <input value={product} onChange={e=>setProduct(e.target.value)} onKeyDown={e=>e.key==="Enter"&&run()} placeholder="שם המוצר שנשאר בעגלה..." style={{...S.input, flex:1}} />
+      </div>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#dc2626",fontFamily:"monospace"}}><Spin/> כותב 3 מיילים...</div>}
+      {result && !loading && <>
+        <div style={{...S.output, marginTop:14, borderColor:"#dc262633"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק הכל</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── WELCOME SERIES TAB ────────────────────────────────────────
+function WelcomeSeriesTab() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const run = async () => {
+    setLoading(true); setResult("");
+    try {
+      setResult(await callClaude(`כתוב סדרת 3 מיילים Welcome לנרשם חדש ל-VIBEMODO.
+כל מייל – Subject Line + גוף מלא + CTA לvibemodostyle.com.
+
+📧 מייל 1 – מיידי אחרי הרשמה (ברוך הבא + קופון 10%):
+Subject:
+גוף (חם, מזמין, מציג את VIBEMODO, קוד WELCOME10):
+CTA:
+━━━━━━━━━━━━━━━━━━
+
+📧 מייל 2 – 2 ימים אחרי (הצגת הקטגוריות הפופולריות):
+Subject:
+גוף (מציג: בגדים, נעליים, אקססוריז – עם תיאורים מפתים):
+CTA:
+━━━━━━━━━━━━━━━━━━
+
+📧 מייל 3 – 5 ימים אחרי (סיפור המותג + Social Proof):
+Subject:
+גוף (סיפור VIBEMODO, מה מייחד אותנו, ביקורות לקוחות):
+CTA:
+
+טון: חם, אותנטי, בונה אמון. כל מייל קצר ועוצמתי.`));
+    } catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>👋 סדרת מיילים – Welcome</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>3 מיילים לנרשם חדש — בונים אמון ומייצרים מכירה ראשונה תוך 5 ימים</p>
+      <button style={{...S.btn("#7c3aed"), ...(loading?{opacity:.5}:{})}} onClick={run} disabled={loading}>
+        {loading?<><Spin/> כותב...</>:<>👋 צור סדרת Welcome</>}
+      </button>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#7c3aed",fontFamily:"monospace"}}><Spin/> כותב 3 מיילים...</div>}
+      {result && !loading && <>
+        <div style={{...S.output, marginTop:14, borderColor:"#7c3aed33"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק הכל</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── AB TEST TAB ───────────────────────────────────────────────
+function ABTestTab() {
+  const [type, setType] = useState("subject");
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const TYPES = [
+    {id:"subject",  label:"Subject Line",     emoji:"📧"},
+    {id:"headline", label:"כותרת מודעה",      emoji:"📢"},
+    {id:"cta",      label:"כפתור CTA",        emoji:"🎯"},
+    {id:"hook",     label:"Hook וידאו",       emoji:"🪝"},
+    {id:"caption",  label:"קפשן פוסט",        emoji:"📸"},
+  ];
+
+  const PROMPTS = {
+    subject:  i => `צור 5 גרסאות Subject Line לאימייל VIBEMODO בנושא: "${i}". כל גרסה – סגנון שונה (FOMO, סקרנות, הומור, ישיר, שאלה). לכל גרסה – הסבר קצר למה היא תעבוד. ממוספר 1-5.`,
+    headline: i => `צור 5 גרסאות כותרת מודעה ל-VIBEMODO עבור: "${i}". סגנונות שונים: רגש, הנחה, שאלה, הצהרה, FOMO. לכל גרסה הסבר קצר. ממוספר 1-5.`,
+    cta:      i => `צור 5 גרסאות כפתור CTA ל-VIBEMODO בהקשר: "${i}". מעבר ל"קנה עכשיו" – גרסאות יצירתיות. לכל גרסה הסבר. ממוספר 1-5.`,
+    hook:     i => `צור 5 Hooks שונים לסרטון TikTok/Reel של VIBEMODO בנושא: "${i}". כל Hook – 1-2 משפטים שעוצרים גלילה. סגנונות שונים. ממוספר 1-5.`,
+    caption:  i => `צור 5 גרסאות קפשן לפוסט Instagram של VIBEMODO בנושא: "${i}". אורכים שונים, סגנונות שונים. לכל גרסה הסבר. ממוספר 1-5.`,
+  };
+
+  const run = async () => {
+    if (!input.trim()) return;
+    setLoading(true); setResult("");
+    try { setResult(await callClaude(PROMPTS[type](input))); }
+    catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>📊 A/B טסט גנרטור</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>5 גרסאות לכל אלמנט — בדוק מה עובד הכי טוב לפני שמשיקים</p>
+      <div style={S.wrap}>
+        {TYPES.map(t=><button key={t.id} style={S.chip(type===t.id,"#3B9EFF")} onClick={()=>setType(t.id)}>{t.emoji} {t.label}</button>)}
+      </div>
+      <div style={S.row}>
+        <button style={{...S.btn("#1d4ed8"), ...(loading||!input.trim()?{opacity:.5}:{})}} onClick={run} disabled={loading||!input.trim()}>
+          {loading?<><Spin/> מייצר...</>:<>📊 צור 5 גרסאות</>}
+        </button>
+        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&run()} placeholder="נושא / מוצר / הקשר..." style={{...S.input, flex:1}} />
+      </div>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#3B9EFF",fontFamily:"monospace"}}><Spin/> מייצר 5 גרסאות...</div>}
+      {result && !loading && <>
+        <div style={{...S.output, marginTop:14}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── GOOGLE SHOPPING TAB ───────────────────────────────────────
+function GoogleShoppingTab() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [result, setResult] = useState("");
+  const [selected, setSelected] = useState(null);
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch("https://vibemodostyle.com/products.json?limit=50");
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch(e) { setProducts([]); }
+    setLoadingProducts(false);
+  };
+
+  useEffect(() => { fetchProducts(); }, []);
+
+  const run = async () => {
+    if (!selected) return;
+    setLoading(true); setResult("");
+    const price = selected.variants?.[0]?.price;
+    const comparePrice = selected.variants?.[0]?.compare_at_price;
+    try {
+      setResult(await callClaude(`אופטימיזציה ל-Google Shopping עבור VIBEMODO.
+מוצר: "${selected.title}"
+מותג: ${selected.vendor}
+מחיר: ₪${price}${comparePrice?` (מקורי: ₪${comparePrice})`:""}
+
+צור:
+📌 TITLE מותאם ל-Google Shopping (עד 150 תווים, כולל מותג, סוג, צבע, מידה):
+[כותרת]
+
+📝 DESCRIPTION מותאם (עד 5000 תווים, SEO, מילות מפתח, יתרונות):
+[תיאור]
+
+🏷️ GOOGLE PRODUCT CATEGORY:
+[קטגוריה מדויקת לפי מבנה Google]
+
+🔑 KEYWORDS לGoogle Shopping (20 מילות מפתח):
+[מילות מפתח]
+
+💡 CUSTOM LABELS מומלצים:
+[תוויות לפילוח קמפיין]`));
+    } catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={S.card}>
+        <span style={{...S.label, fontSize:15}}>🛒 Google Shopping אופטימייזר</span>
+        <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>כותרות ותיאורים מותאמים ל-Google Shopping = תנועה אורגנית בחינם</p>
+        {loadingProducts && <div style={{textAlign:"center",padding:16,color:"#4285F4"}}><Spin/> טוען מוצרים...</div>}
+        <div style={{maxHeight:250, overflowY:"auto", display:"flex", flexDirection:"column", gap:6, marginBottom:12}}>
+          {products.map(p=>(
+            <div key={p.id} onClick={()=>{setSelected(p);setResult("");}}
+              style={{display:"flex", alignItems:"center", gap:10, padding:"8px 12px", borderRadius:8, cursor:"pointer", border:`1px solid ${selected?.id===p.id?"#4285F4":"#2d3f5e"}`, background:selected?.id===p.id?"#1a2d4a":"#111827"}}>
+              {p.images?.[0]?.src && <img src={p.images[0].src} alt="" style={{width:40,height:40,borderRadius:6,objectFit:"cover",flexShrink:0}} />}
+              <div style={{flex:1,textAlign:"right"}}>
+                <div style={{color:"#f1f5f9",fontSize:13,fontWeight:600}}>{p.title}</div>
+                <div style={{color:"#8fa3c0",fontSize:11}}>{p.vendor} · ₪{p.variants?.[0]?.price}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button style={{...S.btn("#4285F4"), ...(loading||!selected?{opacity:.5}:{})}} onClick={run} disabled={loading||!selected}>
+          {loading?<><Spin/> מייצר...</>:<>🛒 אופטימיזציה ל-Google Shopping</>}
+        </button>
+      </div>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#4285F4",fontFamily:"monospace"}}><Spin/> מייצר תוכן Google Shopping...</div>}
+      {result && !loading && (
+        <div style={S.card}>
+          <div style={S.output}>{result}</div>
+          <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק</button></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── BIO OPTIMIZER TAB ─────────────────────────────────────────
+function BioTab() {
+  const [platform, setPlatform] = useState("instagram");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const PLATFORMS = [
+    {id:"instagram", label:"Instagram",  icon:"📸", color:"#E1306C"},
+    {id:"tiktok",    label:"TikTok",     icon:"🎵", color:"#69C9D0"},
+    {id:"facebook",  label:"Facebook",   icon:"👤", color:"#4A90D9"},
+    {id:"pinterest", label:"Pinterest",  icon:"📌", color:"#E60023"},
+    {id:"youtube",   label:"YouTube",    icon:"▶",  color:"#FF4444"},
+  ];
+
+  const run = async () => {
+    setLoading(true); setResult("");
+    const p = PLATFORMS.find(x=>x.id===platform);
+    try {
+      setResult(await callClaude(`אופטימיזציה מלאה לפרופיל VIBEMODO ב-${p.label}.
+
+צור:
+✍️ BIO מושלם (בגבול התווים של ${p.label}):
+[ביו שמציג בצורה ברורה מה VIBEMODO, למי זה מיועד, CTA + vibemodostyle.com]
+
+📌 שם פרופיל מומלץ:
+[שם שעוזר לחיפוש]
+
+🔗 Link in Bio טקסט:
+[משפט קצר שגורם לאנשים ללחוץ]
+
+🏷️ קטגוריה/ג'אנר מומלץ:
+[לפי האפשרויות של ${p.label}]
+
+📣 Highlights מומלצים (לאינסטגרם):
+[5 נושאים לסטוריז מוצמדים]
+
+💡 3 טיפים לאופטימיזציה של הפרופיל ב-${p.label}:`));
+    } catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  const active = PLATFORMS.find(x=>x.id===platform);
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>📱 Bio אופטימייזר</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>פרופיל חזק = יותר עוקבים + יותר לחיצות לאתר</p>
+      <div style={S.wrap}>
+        {PLATFORMS.map(p=><button key={p.id} style={S.chip(platform===p.id,p.color)} onClick={()=>setPlatform(p.id)}>{p.icon} {p.label}</button>)}
+      </div>
+      <button style={{...S.btn(active.color), ...(loading?{opacity:.5}:{})}} onClick={run} disabled={loading}>
+        {loading?<><Spin/> מייצר...</>:<>📱 אופטמז פרופיל {active.label}</>}
+      </button>
+      {loading && <div style={{textAlign:"center",padding:24,color:active.color,fontFamily:"monospace"}}><Spin/> מייצר ביו מושלם...</div>}
+      {result && !loading && <>
+        <div style={{...S.output,marginTop:14,borderColor:active.color+"44"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── TIKTOK HOOKS TAB ──────────────────────────────────────────
+function HooksTab() {
+  const [category, setCategory] = useState("fashion");
+  const [product, setProduct] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const CATEGORIES = [
+    {id:"fashion",  label:"אופנה",       emoji:"👗"},
+    {id:"deal",     label:"מבצע/מחיר",   emoji:"💰"},
+    {id:"brand",    label:"מותג",        emoji:"🐺"},
+    {id:"story",    label:"סיפור",       emoji:"📖"},
+    {id:"shock",    label:"הפתעה",       emoji:"😱"},
+    {id:"question", label:"שאלה",        emoji:"❓"},
+  ];
+
+  const run = async () => {
+    setLoading(true); setResult("");
+    const cat = CATEGORIES.find(x=>x.id===category);
+    try {
+      setResult(await callClaude(`צור 15 Hooks וויראליים לTikTok/Reels עבור VIBEMODO.
+קטגוריה: ${cat.label}
+${product?`מוצר/נושא: "${product}"`:""}
+
+כל Hook – משפט אחד או שניים שעוצרים גלילה תוך 2 שניות.
+פורמט: ממוספר 1-15, כל Hook בשורה נפרדת.
+אחרי כל Hook – [טיפ: למה זה עובד].
+
+הנחיות: ישיר, מדבר לקהל 20-45, מתייחס לVIBEMODO/vibemodostyle.com.`));
+    } catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>🪝 ספריית TikTok Hooks</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>ה-Hook הוא ההבדל בין 100 ל-100K צפיות — 15 Hooks מוכנים לשימוש</p>
+      <div style={S.wrap}>
+        {CATEGORIES.map(c=><button key={c.id} style={S.chip(category===c.id,"#69C9D0")} onClick={()=>setCategory(c.id)}>{c.emoji} {c.label}</button>)}
+      </div>
+      <div style={S.row}>
+        <button style={{...S.btn("#0e7490"), ...(loading?{opacity:.5}:{})}} onClick={run} disabled={loading}>
+          {loading?<><Spin/> מייצר...</>:<>🪝 צור 15 Hooks</>}
+        </button>
+        <input value={product} onChange={e=>setProduct(e.target.value)} onKeyDown={e=>e.key==="Enter"&&run()} placeholder="מוצר/נושא (אופציונלי)..." style={{...S.input,flex:1}} />
+      </div>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#69C9D0",fontFamily:"monospace"}}><Spin/> מייצר Hooks וויראליים...</div>}
+      {result && !loading && <>
+        <div style={{...S.output,marginTop:14,borderColor:"#69C9D033"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק הכל</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── REVIEWS TAB ───────────────────────────────────────────────
+function ReviewsTab() {
+  const [type, setType] = useState("positive");
+  const [review, setReview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const TYPES = [
+    {id:"positive",  label:"ביקורת חיובית",  emoji:"⭐", color:"#22c55e"},
+    {id:"negative",  label:"ביקורת שלילית",  emoji:"😤", color:"#ef4444"},
+    {id:"neutral",   label:"ביקורת ניטרלית", emoji:"😐", color:"#f59e0b"},
+    {id:"generate",  label:"ייצר ביקורות",   emoji:"✍️", color:"#3B9EFF"},
+  ];
+
+  const run = async () => {
+    setLoading(true); setResult("");
+    const t = TYPES.find(x=>x.id===type);
+    const prompt = type === "generate"
+      ? `כתוב 10 ביקורות לקוחות אותנטיות לחנות VIBEMODO. שונות בסגנון, אורך, ודירוג (בעיקר 4-5 כוכבים). נשמע אמיתי ואנושי. לכל ביקורת: שם, דירוג, ביקורת.`
+      : `כתוב 3 תגובות מקצועיות לביקורת ${t.label} הזו על VIBEMODO:
+"${review||"[הביקורת תופיע כאן]"}"
+
+לכל תגובה: חברותית, מקצועית, מייצגת את הטון של VIBEMODO. תגובה 1 – קצרה, תגובה 2 – בינונית, תגובה 3 – מפורטת.`;
+
+    try { setResult(await callClaude(prompt)); }
+    catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  const active = TYPES.find(x=>x.id===type);
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>⭐ ניהול ביקורות</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>תגובות מקצועיות לביקורות = אמון = מכירות</p>
+      <div style={S.wrap}>
+        {TYPES.map(t=><button key={t.id} style={S.chip(type===t.id,t.color)} onClick={()=>setType(t.id)}>{t.emoji} {t.label}</button>)}
+      </div>
+      {type !== "generate" && (
+        <textarea value={review} onChange={e=>setReview(e.target.value)} placeholder="הדבק את הביקורת כאן..." style={{...S.input,width:"100%",minHeight:80,resize:"vertical",marginBottom:12,lineHeight:1.6}} />
+      )}
+      <button style={{...S.btn(active.color), ...(loading?{opacity:.5}:{})}} onClick={run} disabled={loading}>
+        {loading?<><Spin/> כותב...</>:<>{active.emoji} {type==="generate"?"ייצר ביקורות":"כתוב תגובות"}</>}
+      </button>
+      {loading && <div style={{textAlign:"center",padding:24,color:active.color,fontFamily:"monospace"}}><Spin/> כותב...</div>}
+      {result && !loading && <>
+        <div style={{...S.output,marginTop:14,borderColor:active.color+"44"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ── WHATSAPP TAB ──────────────────────────────────────────────
+function WhatsappTab() {
+  const [type, setType] = useState("promo");
+  const [product, setProduct] = useState("");
+  const [offer, setOffer] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const TYPES = [
+    {id:"promo",     label:"מבצע/הנחה",      emoji:"🔥"},
+    {id:"newstock",  label:"מלאי חדש",        emoji:"✨"},
+    {id:"abandoned", label:"עגלה נטושה",      emoji:"🛒"},
+    {id:"vip",       label:"לקוח VIP",        emoji:"👑"},
+    {id:"seasonal",  label:"חגים/עונות",      emoji:"🎉"},
+    {id:"series",    label:"סדרת 3 הודעות",   emoji:"📲"},
+  ];
+
+  const run = async () => {
+    setLoading(true); setResult("");
+    const t = TYPES.find(x=>x.id===type);
+    const context = `${product?`מוצר: "${product}"`:""}${offer?` | הצעה: "${offer}"`:""}`;
+
+    const prompts = {
+      promo:     `כתוב 3 הודעות WhatsApp שיווקיות של VIBEMODO למבצע. ${context}. כל הודעה עד 160 תווים, ישיר, CTA לvibemodostyle.com.`,
+      newstock:  `כתוב 3 הודעות WhatsApp של VIBEMODO על מלאי חדש. ${context}. כל הודעה עד 160 תווים, מעורר התרגשות.`,
+      abandoned: `כתוב 3 הודעות WhatsApp לעגלה נטושה של VIBEMODO. ${context}. עדין, FOMO, מציע עזרה. כל הודעה עד 160 תווים.`,
+      vip:       `כתוב 3 הודעות WhatsApp ללקוח VIP של VIBEMODO. ${context}. אישי, מיוחד, הרגשת VIP. כל הודעה עד 160 תווים.`,
+      seasonal:  `כתוב 3 הודעות WhatsApp עונתיות/חגיגיות של VIBEMODO. ${context}. שמח, אותנטי, עם הצעת ערך. כל הודעה עד 160 תווים.`,
+      series:    `כתוב סדרת 3 הודעות WhatsApp של VIBEMODO (Broadcast). ${context}. הודעה 1: עניין, הודעה 2: ערך, הודעה 3: CTA חזק. כל הודעה עד 200 תווים.`,
+    };
+
+    try { setResult(await callClaude(prompts[type])); }
+    catch(e) { setResult("❌ " + e.message); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={S.card}>
+      <span style={{...S.label, fontSize:15}}>📲 WhatsApp Broadcast</span>
+      <p style={{color:"#8fa3c0", fontSize:13, textAlign:"right", marginBottom:14}}>הודעות ישירות ללקוחות = הכנסות מיידיות. פתיחת הודעות WhatsApp: 98%</p>
+      <div style={S.wrap}>
+        {TYPES.map(t=><button key={t.id} style={S.chip(type===t.id,"#25D366")} onClick={()=>setType(t.id)}>{t.emoji} {t.label}</button>)}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+        <input value={product} onChange={e=>setProduct(e.target.value)} placeholder="מוצר/קטגוריה (אופציונלי)" style={S.input} />
+        <input value={offer} onChange={e=>setOffer(e.target.value)} placeholder="הצעה (לדוגמה: 20% הנחה)" style={S.input} />
+      </div>
+      <button style={{...S.btn("#16a34a"), ...(loading?{opacity:.5}:{})}} onClick={run} disabled={loading}>
+        {loading?<><Spin/> כותב...</>:<>📲 צור הודעות WhatsApp</>}
+      </button>
+      {loading && <div style={{textAlign:"center",padding:24,color:"#25D366",fontFamily:"monospace"}}><Spin/> כותב הודעות...</div>}
+      {result && !loading && <>
+        <div style={{...S.output,marginTop:14,borderColor:"#25D36633"}}>{result}</div>
+        <div style={{marginTop:10}}><button style={S.btnSm()} onClick={()=>navigator.clipboard.writeText(result)}>📋 העתק הכל</button></div>
+      </>}
+    </div>
+  );
+}
+
 const TABS = [
   {id:"live",        label:"🛍️ חנות Live",      C:LiveProductsTab},
   {id:"pack",        label:"📦 פאקג' מוצר",     C:ProductPackTab},
   {id:"video",       label:"🎬 וידאו",           C:VideoTab},
   {id:"ads",         label:"🎯 מודעות",           C:AdsTab},
-  {id:"content",     label:"✍️ תוכן",          C:ContentTab},
-  {id:"repurpose",   label:"🔄 ריפרפוז",        C:RepurposeTab},
-  {id:"seo",         label:"🔍 SEO",            C:SeoTab},
-  {id:"email",       label:"📧 מיילים",         C:EmailTab},
-  {id:"products",    label:"🛒 מוצרים",         C:ProductsTab},
-  {id:"ambassadors", label:"🤝 שגרירים",        C:AmbassadorsTab},
-  {id:"chatbot",     label:"💬 צ'אטבוט",        C:ChatbotTab},
-  {id:"competitors", label:"🏆 מתחרים",         C:CompetitorsTab},
-  {id:"planner",     label:"📅 מתכנן",           C:PlannerTab},
-  {id:"monitor",     label:"🛡️ ניטור",          C:MonitorTab},
-  {id:"strategy",    label:"🧠 אסטרטגיה",      C:StrategyTab},
+  {id:"hooks",       label:"🪝 Hooks",            C:HooksTab},
+  {id:"abtest",      label:"📊 A/B טסט",         C:ABTestTab},
+  {id:"content",     label:"✍️ תוכן",            C:ContentTab},
+  {id:"repurpose",   label:"🔄 ריפרפוז",          C:RepurposeTab},
+  {id:"seo",         label:"🔍 SEO",              C:SeoTab},
+  {id:"shopping",    label:"🛒 Google Shopping",  C:GoogleShoppingTab},
+  {id:"email",       label:"📧 מיילים",           C:EmailTab},
+  {id:"welcome",     label:"👋 Welcome",          C:WelcomeSeriesTab},
+  {id:"cart",        label:"🛒 עגלה נטושה",       C:AbandonedCartTab},
+  {id:"whatsapp",    label:"📲 WhatsApp",         C:WhatsappTab},
+  {id:"bio",         label:"📱 Bio",              C:BioTab},
+  {id:"reviews",     label:"⭐ ביקורות",          C:ReviewsTab},
+  {id:"products",    label:"🛍️ מוצרים",          C:ProductsTab},
+  {id:"ambassadors", label:"🤝 שגרירים",          C:AmbassadorsTab},
+  {id:"chatbot",     label:"💬 צ'אטבוט",          C:ChatbotTab},
+  {id:"competitors", label:"🏆 מתחרים",           C:CompetitorsTab},
+  {id:"planner",     label:"📅 מתכנן",             C:PlannerTab},
+  {id:"monitor",     label:"🛡️ ניטור",            C:MonitorTab},
+  {id:"strategy",    label:"🧠 אסטרטגיה",        C:StrategyTab},
 ];
 
 export default function App() {
