@@ -1,5 +1,111 @@
 import { useState, useEffect } from "react";
 
+// ── DASHBOARD ─────────────────────────────────────────────────
+function DashboardTab({ setTab }) {
+  const SECTIONS = [
+    {
+      title: "🎬 סרטונים עם מוצרים אמיתיים מהחנות",
+      color: "#69C9D0",
+      hot: true,
+      steps: [
+        { icon: "1️⃣", text: 'עבור לטאב 🛍️ חנות Live' },
+        { icon: "2️⃣", text: "בחר מוצר מהחנות — תמונה, שם ומחיר נטענים אוטומטית" },
+        { icon: "3️⃣", text: 'לחץ "🤖 פרומפט Grok Imagine" ואז "צור"' },
+        { icon: "4️⃣", text: 'לחץ "העתק + פתח Grok Imagine" — הפרומפט מועתק והאתר נפתח' },
+        { icon: "5️⃣", text: "ב-Grok: העלה תמונת המוצר + הדבק הפרומפט + בחר Video 720p 10s 16:9" },
+        { icon: "✅", text: "קבל סרטון 10 שניות של המוצר האמיתי שלך — מוכן לפרסום!" },
+      ],
+      tabId: "live",
+    },
+    {
+      title: "📦 פאקג' תוכן שלם למוצר",
+      color: "#f59e0b",
+      steps: [
+        { icon: "1️⃣", text: "עבור לטאב 📦 פאקג' מוצר" },
+        { icon: "2️⃣", text: "הזן שם מוצר ומחיר" },
+        { icon: "3️⃣", text: "לחץ 'צור פאקג' מלא' — הרובוט מייצר 8 תוכנים במקביל" },
+        { icon: "✅", text: "פוסט, TikTok, מייל, SEO, Meta Ads, Google Ads, Story, WhatsApp — הכל מוכן" },
+      ],
+      tabId: "pack",
+    },
+    {
+      title: "🛒 מיילים אוטומטיים שמכניסים כסף",
+      color: "#dc2626",
+      steps: [
+        { icon: "👋", text: "טאב Welcome — 3 מיילים לנרשם חדש עם קופון 10%" },
+        { icon: "🛒", text: "טאב עגלה נטושה — 3 מיילים שמחזירים לקוח שעזב" },
+        { icon: "📧", text: "טאב מיילים — סוגים נוספים: Win-back, ניוזלטר, SMS" },
+        { icon: "✅", text: "העתק לKlaviyo / Brevo / Mailchimp והפעל אוטומטי" },
+      ],
+      tabId: "welcome",
+    },
+    {
+      title: "🎯 מודעות ממומנות מנצחות",
+      color: "#E1306C",
+      steps: [
+        { icon: "1️⃣", text: "עבור לטאב 🎯 מודעות" },
+        { icon: "2️⃣", text: "בחר פלטפורמה: Meta, Google, TikTok, YouTube" },
+        { icon: "3️⃣", text: "הזן מוצר + הצעה מיוחדת" },
+        { icon: "✅", text: "קבל 3 גרסאות קופי מוכנות להדבקה ישירה במנהל המודעות" },
+      ],
+      tabId: "ads",
+    },
+    {
+      title: "🪝 Hooks לTikTok וויראלי",
+      color: "#69C9D0",
+      steps: [
+        { icon: "1️⃣", text: "עבור לטאב 🪝 Hooks" },
+        { icon: "2️⃣", text: "בחר סגנון + הזן מוצר/נושא" },
+        { icon: "✅", text: "קבל 15 Hooks וויראליים — ה-Hook הנכון = מיליוני צפיות" },
+      ],
+      tabId: "hooks",
+    },
+    {
+      title: "📲 WhatsApp Broadcast",
+      color: "#25D366",
+      steps: [
+        { icon: "1️⃣", text: "עבור לטאב 📲 WhatsApp" },
+        { icon: "2️⃣", text: "בחר סוג: מבצע, מלאי חדש, VIP, עגלה נטושה" },
+        { icon: "✅", text: "הודעות מוכנות לשליחה — פתיחת WhatsApp: 98% לעומת 20% במייל" },
+      ],
+      tabId: "whatsapp",
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{...S.card, background:"linear-gradient(135deg,#0d1f35,#1a2d4a)", border:"1px solid #69C9D044", marginBottom:16}}>
+        <div style={{textAlign:"right"}}>
+          <div style={{color:"#69C9D0", fontWeight:900, fontSize:18, marginBottom:6}}>🐺 VIBEMODO WAR MACHINE</div>
+          <div style={{color:"#8fa3c0", fontSize:13, lineHeight:1.8}}>
+            23 מודולים • מחובר ל-vibemodostyle.com • מייצר תוכן על מוצרים אמיתיים
+          </div>
+        </div>
+      </div>
+
+      {SECTIONS.map((sec, i) => (
+        <div key={i} style={{...S.card, borderRight:`3px solid ${sec.color}`, marginBottom:12}}>
+          <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12}}>
+            <button style={S.btnSm(sec.color)} onClick={()=>setTab(sec.tabId)}>פתח ←</button>
+            <div style={{textAlign:"right"}}>
+              <span style={{color:sec.color, fontWeight:800, fontSize:14}}>{sec.title}</span>
+              {sec.hot && <span style={{marginRight:8, background:"#dc262622", color:"#ef4444", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:10}}>🔥 מומלץ</span>}
+            </div>
+          </div>
+          <div style={{display:"flex", flexDirection:"column", gap:6}}>
+            {sec.steps.map((s,j)=>(
+              <div key={j} style={{display:"flex", gap:10, alignItems:"flex-start", justifyContent:"flex-end"}}>
+                <div style={{color:"#f1f5f9", fontSize:13, textAlign:"right"}}>{s.text}</div>
+                <span style={{fontSize:14, flexShrink:0}}>{s.icon}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const PLATFORMS = [
   { id: "instagram", name: "Instagram", icon: "📸", color: "#E1306C" },
   { id: "tiktok",    name: "TikTok",    icon: "🎵", color: "#69C9D0" },
@@ -1009,12 +1115,35 @@ ${info}
       {result && !loading && (
         <div style={{...S.card, borderTop:`3px solid ${activeType?.color}`}}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10}}>
-            <div style={{display:"flex",gap:8}}>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               <button style={S.btnSm()} onClick={()=>{navigator.clipboard.writeText(result);setFlash("📋 הועתק!");}}>📋 העתק</button>
               <button style={S.btnSm(activeType?.color)} onClick={generate}>🔄 מחדש</button>
+              {genType==="grok" && (
+                <button
+                  style={{...S.btnSm("#69C9D0"), fontWeight:800}}
+                  onClick={()=>{
+                    navigator.clipboard.writeText(result);
+                    window.open("https://x.ai/grok", "_blank");
+                  }}
+                >
+                  🤖 העתק + פתח Grok Imagine
+                </button>
+              )}
             </div>
             <span style={{color:activeType?.color, fontWeight:700, fontSize:14}}>{activeType?.emoji} {activeType?.label}</span>
           </div>
+          {genType==="grok" && (
+            <div style={{background:"#0a1f15", border:"1px solid #69C9D033", borderRadius:8, padding:"10px 14px", marginBottom:12, textAlign:"right"}}>
+              <div style={{color:"#69C9D0", fontWeight:700, fontSize:13, marginBottom:6}}>📋 איך משתמשים בפרומפט?</div>
+              <div style={{color:"#8fa3c0", fontSize:12, lineHeight:1.8}}>
+                1. לחץ <strong style={{color:"#69C9D0"}}>"העתק + פתח Grok Imagine"</strong><br/>
+                2. ב-Grok Imagine — לחץ על <strong style={{color:"#69C9D0"}}>+</strong> והעלה את תמונת המוצר<br/>
+                3. הדבק את הפרומפט בתיבת הטקסט<br/>
+                4. בחר: <strong style={{color:"#69C9D0"}}>Video • 720p • 10s • 16:9</strong><br/>
+                5. לחץ ← וקבל סרטון עם המוצר האמיתי
+              </div>
+            </div>
+          )}
           {flash && <div style={{color:"#22c55e",fontSize:13,marginBottom:8,textAlign:"right"}}>{flash}</div>}
           <div style={S.output}>{result}</div>
         </div>
@@ -1839,7 +1968,8 @@ function WhatsappTab() {
 }
 
 const TABS = [
-  {id:"live",        label:"🛍️ חנות Live",      C:LiveProductsTab},
+  {id:"dashboard",   label:"🏠 דשבורד",           C:null},
+  {id:"live",        label:"🛍️ חנות Live",        C:LiveProductsTab},
   {id:"pack",        label:"📦 פאקג' מוצר",     C:ProductPackTab},
   {id:"video",       label:"🎬 וידאו",           C:VideoTab},
   {id:"ads",         label:"🎯 מודעות",           C:AdsTab},
@@ -1865,10 +1995,11 @@ const TABS = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState("live");
+  const [tab, setTab] = useState("dashboard");
   const [time, setTime] = useState(new Date());
   useEffect(()=>{ const t=setInterval(()=>setTime(new Date()),1000); return()=>clearInterval(t); },[]);
-  const Active = TABS.find(t=>t.id===tab)?.C;
+  const tabObj = TABS.find(t=>t.id===tab);
+  const Active = tabObj?.C;
 
   return (
     <>
@@ -1888,7 +2019,7 @@ export default function App() {
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <div style={{textAlign:"right"}}>
               <div style={{fontWeight:900,fontSize:22,letterSpacing:3,color:"#fff"}}>VIBE<span style={{color:"#3B9EFF"}}>MODO</span></div>
-              <div style={{fontSize:10,color:"#475569",letterSpacing:2,fontFamily:"monospace"}}>WAR MACHINE v2.0 • 9 MODULES</div>
+              <div style={{fontSize:10,color:"#475569",letterSpacing:2,fontFamily:"monospace"}}>WAR MACHINE v3.0 • 23 MODULES</div>
             </div>
             <div style={{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#1e3a6e,#3B9EFF)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>🐺</div>
           </div>
@@ -1913,11 +2044,11 @@ export default function App() {
 
         {/* Content */}
         <div style={{padding:"16px",maxWidth:820,margin:"0 auto",animation:"fadeIn .3s ease"}}>
-          {Active && <Active />}
+          {tab==="dashboard" ? <DashboardTab setTab={setTab} /> : (Active && <Active />)}
         </div>
 
         <div style={{textAlign:"center",padding:10,color:"#1e293b",fontSize:10,fontFamily:"monospace",borderTop:"1px solid #0f172a"}}>
-          VIBEMODO WAR MACHINE v2.0 • 9 MODULES • POWERED BY CLAUDE AI
+          VIBEMODO WAR MACHINE v3.0 • 23 MODULES • POWERED BY CLAUDE AI
         </div>
       </div>
     </>
